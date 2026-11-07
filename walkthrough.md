@@ -1,7 +1,7 @@
 # Light-YOLO: Real-Time & Efficient Underwater Object Detection
 ## Dokumen Investigasi Arsitektur, Fase 0 (Gerbang Latensi), dan Roadmap JRTIP Q1
 
-Dokumen ini merangkum **status investigasi arsitektur terbaru**, **hasil empiris Fase 0 (Gerbang Latensi)**, dan **roadmap persiapan manuskrip** untuk jurnal internasional bereputasi: **Journal of Real-Time Image Processing (JRTIP) - Springer (Q1)**.
+Dokumen ini merangkum **status investigasi arsitektur terbaru**, **hasil empiris Fase 0 (Gerbang Latensi)**, **catatan hasil pelatihan State 1 (Baseline YOLOv11s)**, dan **roadmap persiapan manuskrip** untuk jurnal internasional bereputasi: **Journal of Real-Time Image Processing (JRTIP) - Springer (Q1)**.
 
 ---
 
@@ -82,14 +82,34 @@ GSConv ──► Single Fused Hardware Kernel (Conv + SiLU + Shuffle Fused)
 
 ---
 
-## 6. Roadmap Langkah Selanjutnya (Next Steps)
+## 6. Hasil Pelatihan Resmi 100 Epoch: State 1 (Baseline YOLOv11s)
 
-1. **Dataset Ingestion:**
-   * Persiapan pipeline dataset **RUOD** dan **UTDAC** (serta validasi dengan URPC 2020).
-2. **Setup State Pelatihan Bertahap:**
-   * **State 1:** Baseline YOLOv11s standar.
-   * **State 2:** YOLOv11s + Slim-Neck.
-   * **State 3:** Penambahan Scheduled IoG-Gated Repulsion Loss (penanganan oklusi).
-   * **State 4 dst.:** Penambahan Class-Balanced Loss untuk penanganan ketidakseimbangan kelas laut.
-3. **Penyusunan Manuskrip JRTIP:**
-   * Memasukkan data empiris Fase 0 ke dalam *Section 4: Experimental Results & Hardware Latency Benchmark*.
+Pelatihan 100 epoch penuh untuk **State 1 Baseline** telah selesai dilaksanakan dengan kendali ketat:
+* **Dataset:** URPC 2020 (14.415 citra latih, 949 citra validasi)
+* **Hyperparameter:** `batch=16`, `imgsz=640`, `lr0=0.01`, `seed=42`, `deterministic=True`, `cos_lr=False`.
+* **Hardware:** NVIDIA GeForce RTX 4050 Laptop GPU (Total waktu: 6.7 jam).
+* **Lokasi Artefak:** `runs/detect/JRTIP_URPC_Ablation/State1_Baseline_v11s/`
+
+### Tabel Metrik Final State 1 Baseline (`best.pt`):
+
+| Kelas Deteksi | Jumlah Sampel Validasi | Precision (P) | Recall (R) | $\text{mAP}_{50}$ | $\text{mAP}_{50-95}$ | Catatan Karakteristik |
+| :--- | :---: | :---: | :---: | :---: | :---: | :--- |
+| **Echinus (Bulu Babi)** | 3.559 | 86.8% | 85.9% | **91.1%** | **51.7%** | Dominan & fitur visual jelas |
+| **Starfish (Bintang Laut)** | 1.197 | 84.1% | 81.0% | **87.9%** | **53.7%** | Rentan oklusi (target State 3) |
+| **Scallop (Kerang)** | 1.900 | 82.0% | 76.6% | **84.1%** | **51.2%** | Tertutup sedimen pasir |
+| **Holothurian (Teripang)** | 792 | 76.4% | 65.6% | **71.4%** | **39.1%** | Sampel sedikit (target State 4) |
+| **RATA-RATA TOTAL (ALL)** | **7.448** | **82.3%** | **77.3%** | **83.63%** | **48.94%** | **Acuan Resmi Baseline State 1** |
+
+---
+
+## 7. Roadmap Langkah Selanjutnya (Next Steps)
+
+1. **State 2 (Slim-Neck YOLOv11s):**
+   * Menjalankan pelatihan 100 epoch untuk State 2 (`configs/yolo11s_state2.yaml`) dengan konfigurasi identik (`seed=42`, `batch=16`, `deterministic=True`).
+   * Memvalidasi apakah akurasi mAP50 tetap bertahan kompetitif di kisaran ~83.5–84% sementara efisiensi parameter (-11.3%) dan TensorRT latency (4.55 ms) tercapai.
+2. **State 3 (Scheduled IoG-Gated Repulsion Loss):**
+   * Mengaktifkan Repulsion Loss untuk mendongkrak oklusi (*Starfish/Scallop*).
+3. **State 4 (Class-Balanced Loss):**
+   * Mengaktifkan penyeimbangan kelas untuk mengangkat akurasi kelas minoritas (*Holothurian* dari 71.4% ke target >75%).
+4. **Persiapan Dataset RUOD & UTDAC:**
+   * Menyiapkan pipeline pengujian generalisasi multi-kondisi bawah air.
