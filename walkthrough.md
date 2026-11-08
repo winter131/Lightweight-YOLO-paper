@@ -86,16 +86,16 @@ GSConv ──► Single Fused Hardware Kernel (Conv + SiLU + Shuffle Fused)
 
 Keduanya dilatih secara identik pada dataset **URPC 2020** (14.415 citra latih, 949 citra validasi) dengan protokol `seed=42`, `deterministic=True`, `batch=16`, `lr0=0.01`, `cos_lr=False`:
 
-| Karakteristik Metrik | State 1 (Baseline YOLOv11s) | State 2 (YOLOv11s + Slim-Neck) | Delta / Efisiensi Pareto | Status Validasi Akademis |
-| :--- | :---: | :---: | :---: | :---: |
-| **Parameter Jaringan** | 9.34 M | **8.29 M** | **-11.3% (-1.05 M)** | 🏆 **Model Lebih Ringan** |
-| **Komputasi (FLOPs)** | 17.7 GFLOPs | **16.0 GFLOPs** | **-9.6% (-1.70 G)** | 🏆 **Komputasi Lebih Rendah** |
-| **Pure TensorRT Latency** | 4.80 ms (208.3 FPS) | **4.55 ms (219.6 FPS)** | **+5.15% LEBIH CEPAT** | 🚀 **Ultra Real-Time (>200 FPS)** |
-| **Peak VRAM Footprint** | 0.193 GB | 0.193 GB | Sama | 🏆 **Ramah Embedded ($\le 0.8$ GB)** |
-| **Precision (P)** | 82.34% | **82.51%** | **+0.17% (Lebih Presisi)** | 🟢 Terjaga |
-| **Recall (R)** | 77.28% | 76.66% | -0.62% | 🟢 Terjaga |
-| **$\text{mAP}_{50}$** | **83.63%** | **83.16%** | **-0.47% (Sangat Kompetitif)** | 🏆 **Trade-off Pareto Sempurna** |
-| **$\text{mAP}_{50-95}$** | **48.94%** | **48.82%** | **-0.12% (Identik)** | 🏆 **Presisi Box Tidak Turun** |
+| Karakteristik Metrik | State 1 (Baseline YOLOv11s) | State 2 (YOLOv11s + Slim-Neck) | Delta / Efisiensi Pareto |
+| :--- | :---: | :---: | :---: |
+| **Parameter Jaringan** | 9.34 M | **8.29 M** | **-11.3% (-1.05 M)** |
+| **Komputasi (FLOPs)** | 17.7 GFLOPs | **16.0 GFLOPs** | **-9.6% (-1.70 G)** |
+| **Pure TensorRT Latency** | 4.80 ms (208.3 FPS) | **4.55 ms (219.6 FPS)** | **+5.15% LEBIH CEPAT** |
+| **Peak VRAM Footprint** | 0.193 GB | 0.193 GB | Sama (0.193 GB) |
+| **Precision (P)** | 82.34% | **82.51%** | **+0.17%** |
+| **Recall (R)** | 77.28% | 76.66% | -0.62% |
+| **$\text{mAP}_{50}$** | **83.63%** | **83.16%** | **-0.47%** |
+| **$\text{mAP}_{50-95}$** | **48.94%** | **48.82%** | **-0.12%** |
 
 ### Rincian Per-Kelas ($\text{mAP}_{50}$):
 * **Echinus:** 91.1% (State 1) $\rightarrow$ **91.6%** (State 2, **+0.5% Naik!**)
