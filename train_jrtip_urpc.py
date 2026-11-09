@@ -53,7 +53,7 @@ def main():
         custom_modules.USE_CLASS_BALANCED = False
     elif args.state == 4:
         cfg_file = "configs/yolo11s_state1.yaml"
-        run_name = "State4_ClassBalanced_v11s"
+        run_name = "State4_ClassBalancedOnly"
         custom_modules.USE_REPULSION_LOSS = False
         custom_modules.USE_CLASS_BALANCED = True
     elif args.state == 8:

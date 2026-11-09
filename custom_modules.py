@@ -123,7 +123,7 @@ def custom_get_assigned_targets_and_loss(self, preds, batch):
         
         # Inverse frequency: kelas yg sering muncul dpt bobot kecil
         alpha = 1.0 / counts
-        alpha = (alpha / alpha.mean()).to(dtype) # Normalisasi agar rata-ratanya 1
+        alpha = (alpha / alpha.mean()).to(device=self.device, dtype=dtype) # Normalisasi agar rata-ratanya 1
         
         # Hitung BCE Loss (shape: batch, anchors, nc)
         bce_out = self.bce(pred_scores, target_scores.to(dtype))
