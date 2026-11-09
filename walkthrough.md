@@ -1,7 +1,7 @@
 # Light-YOLO: Real-Time & Efficient Underwater Object Detection
 ## Dokumen Investigasi Arsitektur, Fase 0 (Gerbang Latensi), dan Roadmap JRTIP Q1
 
-Dokumen ini merangkum **status investigasi arsitektur terbaru**, **hasil empiris Fase 0 (Gerbang Latensi)**, **catatan hasil pelatihan 100 epoch State 1, State 2, dan State 3**, dan **roadmap persiapan manuskrip** untuk jurnal internasional bereputasi: **Journal of Real-Time Image Processing (JRTIP) - Springer (Q1)**.
+Dokumen ini merangkum **status investigasi arsitektur terbaru**, **hasil empiris Fase 0 (Gerbang Latensi)**, **catatan hasil pelatihan 100 epoch State 1, State 2, State 3, dan State 4**, dan **roadmap persiapan manuskrip** untuk jurnal internasional bereputasi: **Journal of Real-Time Image Processing (JRTIP) - Springer (Q1)**.
 
 ---
 
@@ -82,40 +82,40 @@ GSConv ──► Single Fused Hardware Kernel (Conv + SiLU + Shuffle Fused)
 
 ---
 
-## 6. Tabel Komparasi Resmi 100 Epoch: State 1 vs State 2 vs State 3 (`best.pt`)
+## 6. Tabel Komparasi Resmi 100 Epoch: State 1 s/d State 4 (`best.pt`)
 
-Ketiganya dilatih secara identik pada dataset **URPC 2020** (14.415 citra latih, 949 citra validasi) dengan protokol terkunci `seed=42`, `deterministic=True`, `batch=16`, `lr0=0.01`, `cos_lr=False`:
+Seluruh state dilatih secara identik pada dataset **URPC 2020** (14.415 citra latih, 949 citra validasi) dengan protokol terkunci `seed=42`, `deterministic=True`, `batch=16`, `imgsz=640`, `lr0=0.01`, `cos_lr=False`:
 
-| Karakteristik Metrik | State 1 (Baseline) | State 2 (Slim-Neck) | State 3 (Repulsion Only) | Efek State 3 vs Baseline |
+| Karakteristik Metrik | State 1 (Baseline) | State 2 (Slim-Neck) | State 3 (Repulsion Only) | State 4 (Class-Balanced Only) |
 | :--- | :---: | :---: | :---: | :---: |
-| **Arsitektur Model** | YOLOv11s Baseline | YOLOv11s + Slim-Neck | YOLOv11s Baseline | Kembali ke Baseline murni |
-| **Fungsi Loss Tambahan** | None | None | **IoG-Gated Repulsion Loss** | Sumbu B Aktif |
-| **Parameter Jaringan** | 9.34 M | **8.29 M (-11.3%)** | 9.34 M | 0% Overhead Param |
-| **Komputasi (FLOPs)** | 17.7 GFLOPs | **16.0 GFLOPs (-9.6%)** | 17.7 GFLOPs | 0% Overhead FLOPs |
-| **Pure TensorRT Latency** | 4.80 ms (208.3 FPS) | **4.55 ms (219.6 FPS)** | **4.80 ms (208.3 FPS)** | **Zero-Inference-Cost** |
-| **Peak VRAM Footprint** | 0.193 GB | 0.193 GB | 0.193 GB | Identik ($\le 0.8$ GB) |
-| **Precision (P)** | 82.34% | **82.51%** | 82.24% | -0.10% |
-| **Recall (R)** | 77.28% | 76.66% | **77.49%** | 🏆 **+0.21% (Recall Tertinggi!)** |
-| **$\text{mAP}_{50}$** | **83.63%** | 83.16% | **83.29%** | Kompetitif (-0.34%) |
-| **$\text{mAP}_{50-95}$** | 48.94% | 48.82% | **49.07%** | 🏆 **+0.13% (Melampaui Baseline!)** |
+| **Arsitektur Model** | YOLOv11s Baseline | YOLOv11s + Slim-Neck | YOLOv11s Baseline | YOLOv11s Baseline |
+| **Fungsi Loss Tambahan** | Standard Loss | Standard Loss | IoG-Gated Repulsion Loss | **Class-Balanced BCE Loss** |
+| **Parameter Jaringan** | 9.34 M | **8.29 M (-11.3%)** | 9.34 M | 9.34 M |
+| **Komputasi (FLOPs)** | 17.7 GFLOPs | **16.0 GFLOPs (-9.6%)** | 17.7 GFLOPs | 17.7 GFLOPs |
+| **Latensi TensorRT FP16** | 4.80 ms (208.3 FPS) | **4.55 ms (219.6 FPS)** | 4.80 ms (208.3 FPS) | **4.80 ms (Zero-Inference Cost)** |
+| **Peak VRAM Footprint** | 0.193 GB | 0.193 GB | 0.193 GB | 0.193 GB |
+| **Precision (P)** | 82.34% | **82.51%** | 82.24% | 81.75% |
+| **Recall (R)** | 77.28% | 76.66% | 77.49% | 🏆 **77.83% (Tertinggi!)** |
+| **$\text{mAP}_{50}$** | **83.63%** | 83.16% | 83.29% | **83.54%** |
+| **$\text{mAP}_{50-95}$** | 48.94% | 48.82% | 49.07% | 🏆 **49.25% (Rekor Tertinggi Baru!)** |
 
-### Analisis Kritis Efek Repulsion Loss pada Objek Berdesakan (Oklusi):
-* **Scallop (Kerang menumpuk di pasir):**
-  * State 1 Baseline: $\text{mAP}_{50} = 84.1\%$, $\text{mAP}_{50-95} = 51.2\%$
-  * State 3 Repulsion: **$\text{mAP}_{50} = \mathbf{84.7\%}$ (+0.6%)**, **$\text{mAP}_{50-95} = \mathbf{52.3\%}$ (+1.1% Lonjakan Signifikan!)**
-* **Starfish (Bintang laut bergerombol):**
-  * State 1 Baseline: $\text{mAP}_{50} = 87.9\%$, Recall = 81.0%
-  * State 3 Repulsion: **$\text{mAP}_{50} = \mathbf{88.1\%}$ (+0.2%)**, **Recall = $\mathbf{82.7\%}$ (+1.7% Lonjakan Recall!)**
+### Analisis Kritis Per-Kelas Biota Laut:
+* **Holothurian (Teripang - Target Utama State 4):**
+  * Recall: 65.6% (State 1) $\rightarrow$ 62.8% (State 2) $\rightarrow$ 62.9% (State 3) $\rightarrow$ **66.7% (State 4, Melonjak +3.8% vs State 3!)**
+  * $\text{mAP}_{50-95}$: 39.1% (State 1) $\rightarrow$ 38.6% (State 2) $\rightarrow$ 39.0% (State 3) $\rightarrow$ **39.94% ~40.0% (State 4, Tertinggi!)**
+* **Scallop (Kerang):** $\text{mAP}_{50} = 84.4\%$, $\text{mAP}_{50-95} = 51.7\%$
+* **Starfish (Bintang laut):** $\text{mAP}_{50} = 88.0\%$, $\text{mAP}_{50-95} = 53.4\%$, Recall = 82.5%
 * **Echinus (Bulu babi):** $\text{mAP}_{50} = 90.9\%$, $\text{mAP}_{50-95} = 52.0\%$
-* **Holothurian (Teripang langka):** $\text{mAP}_{50} = 69.5\%$, $\text{mAP}_{50-95} = 39.0\%$ (*target State 4*)
 
 ---
 
 ## 7. Roadmap Langkah Selanjutnya (Next Steps)
 
-1. **State 4 (Class-Balanced Loss):**
-   * Mengaktifkan penyeimbangan frekuensi kelas untuk mengangkat akurasi biota langka (*Holothurian* dari ~69.5% ke target >75%).
-2. **State 5 s/d State 8:**
-   * Kombinasi multi-sumbu (Slim-Neck + Repulsion + Class-Balance) untuk mencapai model komprehensif final (*State 8*).
-3. **Persiapan Dataset RUOD & UTDAC:**
-   * Menyiapkan pipeline pengujian generalisasi multi-kondisi bawah air.
+1. **State 5 (Sumbu A + B: Slim-Neck + Repulsion Loss):**
+   * Menggabungkan efisiensi komputasi Slim-Neck dengan daya tangkal oklusi Repulsion Loss.
+2. **State 6 (Sumbu A + C: Slim-Neck + Class-Balanced Loss):**
+   * Menggabungkan Slim-Neck dengan penyeimbangan kelas langka.
+3. **State 7 (Sumbu B + C: Repulsion + Class-Balanced Loss):**
+   * Menggabungkan kedua modifikasi loss pada arsitektur baseline.
+4. **State 8 (Sumbu A + B + C: Full Proposed Model):**
+   * Model komprehensif final menggabungkan seluruh keunggulan.
