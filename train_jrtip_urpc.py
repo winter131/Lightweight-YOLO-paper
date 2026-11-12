@@ -63,7 +63,7 @@ def main():
         custom_modules.USE_CLASS_BALANCED = False
     elif args.state == 6:
         cfg_file = "configs/yolo11s_state2.yaml"
-        run_name = "State6_SlimNeck_ClassBalanced"
+        run_name = "State6_SlimNeck_ClassBalance"
         custom_modules.USE_REPULSION_LOSS = False
         custom_modules.USE_CLASS_BALANCED = True
     elif args.state == 7:
