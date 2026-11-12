@@ -1,7 +1,7 @@
 # Light-YOLO: Real-Time & Efficient Underwater Object Detection
 ## Dokumen Investigasi Arsitektur, Fase 0 (Gerbang Latensi), dan Hasil Ablasi JRTIP Q1
 
-Dokumen ini merangkum **status investigasi arsitektur terbaru**, **hasil empiris Fase 0 (Gerbang Latensi)**, **catatan hasil pelatihan 100 epoch State 1 s/d 5 dan State 8**, serta **roadmap lanjutan** untuk jurnal internasional bereputasi: **Journal of Real-Time Image Processing (JRTIP) - Springer (Q1)**.
+Dokumen ini merangkum **status investigasi arsitektur terbaru**, **hasil empiris Fase 0 (Gerbang Latensi)**, **catatan hasil pelatihan 100 epoch State 1 s/d 6 dan State 8**, serta **roadmap lanjutan** untuk jurnal internasional bereputasi: **Journal of Real-Time Image Processing (JRTIP) - Springer (Q1)**.
 
 ---
 
@@ -66,35 +66,36 @@ GSConv ──► Single Fused Hardware Kernel (Conv + SiLU + Shuffle Fused)
 
 Seluruh state dilatih secara identik pada dataset **URPC 2020** (14.415 citra latih, 949 citra validasi) dengan protokol terkunci `seed=42`, `deterministic=True`, `batch=16`, `imgsz=640`, `lr0=0.01`, `cos_lr=False`:
 
-| Metrik Evaluasi | State 1 (Baseline) | State 2 (Slim-Neck) | State 3 (Repulsion) | State 4 (Class-Bal) | State 5 (Slim+Rep) | **State 8 (Full Proposed)** |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Slim-Neck (Sumbu A)** | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ |
-| **Repulsion Loss (Sumbu B)** | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ |
-| **Class-Balanced (Sumbu C)** | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ |
-| **Parameter (M)** | 9.34 M | **8.29 M** | 9.34 M | 9.34 M | **8.29 M** | **8.29 M (-11.3%)** |
-| **FLOPs (G)** | 17.7 G | **16.0 G** | 17.7 G | 17.7 G | **16.0 G** | **16.0 G (-9.6%)** |
-| **Pure TensorRT Latency** | 4.80 ms | **4.55 ms** | 4.80 ms | 4.80 ms | **4.55 ms** | **4.55 ms (219.6 FPS)** |
-| **Precision (P)** | 82.34% | 82.51% | 82.24% | 81.75% | 82.32% | 🏆 **83.47% (Tertinggi!)** |
-| **Recall (R)** | 77.28% | 76.66% | 77.49% | 🏆 **77.83%** | 76.52% | 75.71% |
-| **$\text{mAP}_{50}$ (All)** | **83.63%** | 83.16% | 83.29% | 83.54% | **83.42%** | **83.60% (Setara Baseline!)** |
-| **$\text{mAP}_{50-95}$ (All)** | 48.94% | 48.82% | 49.07% | 🏆 **49.25%** | **48.66%** | **48.77%** |
+| Metrik Evaluasi | State 1 (Baseline) | State 2 (Slim-Neck) | State 3 (Repulsion) | State 4 (Class-Bal) | State 5 (Slim+Rep) | State 6 (Slim+CB) | **State 8 (Full Proposed)** |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Slim-Neck (Sumbu A)** | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| **Repulsion Loss (Sumbu B)** | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ✅ |
+| **Class-Balanced (Sumbu C)** | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ |
+| **Parameter (M)** | 9.34 M | **8.29 M** | 9.34 M | 9.34 M | **8.29 M** | **8.29 M** | **8.29 M (-11.3%)** |
+| **FLOPs (G)** | 17.7 G | **16.0 G** | 17.7 G | 17.7 G | **16.0 G** | **16.0 G** | **16.0 G (-9.6%)** |
+| **Pure TensorRT Latency** | 4.80 ms | **4.55 ms** | 4.80 ms | 4.80 ms | **4.55 ms** | **4.55 ms** | **4.55 ms (219.6 FPS)** |
+| **Precision (P)** | 82.34% | 82.51% | 82.24% | 81.75% | 82.32% | 81.71% | 🏆 **83.47% (Tertinggi!)** |
+| **Recall (R)** | 77.28% | 76.66% | 77.49% | 🏆 **77.83%** | 76.52% | 77.29% | 75.71% |
+| **$\text{mAP}_{50}$ (All)** | **83.63%** | 83.16% | 83.29% | 83.54% | **83.42%** | **83.48%** | **83.60% (Setara Baseline!)** |
+| **$\text{mAP}_{50-95}$ (All)** | 48.94% | 48.82% | 49.07% | 🏆 **49.25%** | **48.66%** | **48.81%** | **48.77%** |
 
 ### Breakdown Per-Kelas ($\text{mAP}_{50}$):
-| Kelas Biota Laut | State 1 | State 2 | State 3 | State 4 | State 5 (Slim+Rep) | **State 8 (Full)** | Analisis Sinergi |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
-| **Echinus** | 91.1% | **91.6%** | 90.9% | 90.9% | **91.3%** | **90.9%** | Stabil tinggi (>90%) |
-| **Starfish** | 87.9% | 87.5% | 88.1% | 88.0% | 🏆 **88.5%** | **87.6%** | State 5 rekor tertinggi (+1.0% vs State 2) |
-| **Scallop** | 84.1% | 83.8% | **84.7%** | 84.4% | **84.1%** | **84.3%** | Naik +0.3% (State 5) & +0.5% (State 8) vs State 2 |
-| **Holothurian** | 71.4% | 69.8% | 69.5% | 70.9% | 69.8% | 🏆 **71.6%** | **Tertinggi di State 8 (+1.8% vs State 2 & 5)** |
+| Kelas Biota Laut | State 1 | State 2 | State 3 | State 4 | State 5 (Slim+Rep) | State 6 (Slim+CB) | **State 8 (Full)** | Analisis Sinergi Ilmiah |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
+| **Echinus** | 91.1% | **91.6%** | 90.9% | 90.9% | 91.3% | **91.4%** | **90.9%** | Stabil mendominasi (>90%) di seluruh state |
+| **Starfish** | 87.9% | 87.5% | 88.1% | 88.0% | 🏆 **88.5%** | 88.1% | **87.6%** | Repulsion Loss mendongkrak oklusi starfish (State 5 puncak) |
+| **Scallop** | 84.1% | 83.8% | **84.7%** | 84.4% | 84.1% | 83.7% | **84.3%** | State 3 & 4 mendongkrak scallop; State 8 tetap solid |
+| **Holothurian** | 71.4% | 69.8% | 69.5% | 70.9% | 69.8% | **70.8%** | 🏆 **71.6%** | **Class-Balance mengangkat minoritas (+1.0% di St6, +1.8% di St8)** |
 
 ---
 
 ## 6. Kesimpulan Ilmiah Progres Ablasi
-1. **Efek State 5 (Slim-Neck + Repulsion):** Menambahkan *Repulsion Loss* ke *Slim-Neck* (State 2) menaikkan $\text{mAP}_{50}$ dari **83.16% $\rightarrow$ 83.42% (+0.26%)**, mendongkrak **Starfish ke 88.5% (rekor semua state)** dan **Scallop naik +0.3%** tanpa menambah 1 ms pun latensi inferensi. Namun kelas minoritas (*Holothurian*) tetap tertahan di **69.8%** karena *Class-Balanced Loss* belum aktif.
-2. **Validasi Sinergi Penuh State 8:** Menambahkan *Class-Balanced Loss* di atas State 5 melambungkan *Holothurian* dari **69.8% $\rightarrow$ 71.6% (+1.8%)** serta mendorong keseluruhan $\text{mAP}_{50}$ ke **83.60%** dan **Precision tertinggi 83.47%**.
+1. **Efek State 5 (Slim-Neck + Repulsion):** Menambahkan *Repulsion Loss* ke *Slim-Neck* (State 2) menaikkan $\text{mAP}_{50}$ dari **83.16% $\rightarrow$ 83.42% (+0.26%)**, mendongkrak **Starfish ke 88.5% (rekor semua state)** dan **Scallop naik +0.3%**. Namun kelas minoritas (*Holothurian*) tetap tertahan di **69.8%** karena *Class-Balanced Loss* belum aktif.
+2. **Efek State 6 (Slim-Neck + Class-Balanced):** Menambahkan *Class-Balanced Loss* ke *Slim-Neck* berhasil mendongkrak kelas minoritas **Holothurian dari 69.8% $\rightarrow$ 70.8% (+1.0%)** serta menaikkan overall $\text{mAP}_{50}$ ke **83.48%**, membuktikan kompensasi ketimpangan kelas berhasil bekerja di dalam arsitektur terkompresi.
+3. **Validasi Sinergi Penuh State 8:** Menggabungkan ketiganya (*Slim-Neck + Repulsion + Class-Balance*) menghasilkan efek saling melengkapi paling paripurna: **Holothurian melesat ke rekor tertinggi 71.6%**, **Precision puncak 83.47%**, dan **overall $\text{mAP}_{50}$ 83.60% (setara baseline)** dengan efisiensi komputasi **-11.3% parameter dan kecepatan 219.6 FPS**.
 
 ---
 
 ## 7. Roadmap Langkah Selanjutnya (Next Steps)
-1. **Lengkapi State 6 (Slim-Neck + Class-Balanced)** dan **State 7 (Repulsion + Class-Balanced)** untuk menuntaskan tabel matriks ablasi $2 \times 2 \times 2$ penuh 8 baris.
-2. **Evaluasi Generalisasi Cross-Domain (RUOD & UTDAC):** Menyiapkan dataset RUOD dan UTDAC pengganti Brackish.
+1. **Lengkapi State 7 (Repulsion + Class-Balanced):** Satu-satunya state yang tersisa untuk menyempurnakan tabel matriks ablasi faktorial $2 \times 2 \times 2$ penuh 8 baris!
+2. **Evaluasi Generalisasi Cross-Domain (RUOD & UTDAC):** Menyiapkan dataset RUOD dan UTDAC untuk pengujian generalisasi.
