@@ -118,6 +118,39 @@ Sebagai pembuktian keandalan dan generalisasi metode usulan di luar URPC 2020, d
 
 ---
 
-## 8. Roadmap Langkah Selanjutnya
+## 8. Hasil Benchmark Generalisasi Cross-Domain di Dataset RUOD (10 Kelas)
+
+Pelatihan 100 epoch dari awal (*from scratch*) dengan arsitektur **State 8 (Slim-Neck + Repulsion Loss + Class-Balanced BCE)** pada dataset **RUOD (13.112 citra, 10 kelas)** telah selesai dieksekusi secara penuh:
+* **Run Name:** `RUOD_State8_SlimNeck_Rep_CB`
+* **Arsitektur:** `yolo11s-slimneck.yaml` (8.29 M Parameter, 16.2 GFLOPs)
+* **Dataset:** RUOD (Train: 9.179, Valid: 1.311, Test: 2.622)
+* **Status:** **TUNTAS 100 Epoch** (Checkpoint: `best.pt` pada Epoch 83)
+
+### Metrik Evaluasi Resmi RUOD State 8 (`best.pt`):
+| Metrik Evaluasi | Nilai Empiris |
+| :--- | :---: |
+| **Precision (P)** | **85.8%** |
+| **Recall (R)** | **74.1%** |
+| **$\text{mAP}_{50}$ (All 10 Classes)** | **81.8%** *(Best Epoch: 81.91%)* |
+| **$\text{mAP}_{50-95}$ (All 10 Classes)** | **58.6%** *(Best Epoch: 58.37%)* |
+| **Inference Latency (PyTorch GPU)** | **2.4 ms** (~416 FPS) |
+
+### Rincian Performa Per-Kelas ($\text{mAP}_{50}$):
+| ID | Kelas Biota Laut | Precision (P) | Recall (R) | $\text{mAP}_{50}$ | $\text{mAP}_{50-95}$ |
+| :---: | :--- | :---: | :---: | :---: | :---: |
+| `0` | 🪸 **holothurian** (Teripang) | 83.9% | 74.5% | **82.3%** | 51.2% |
+| `1` | 🦔 **echinus** (Bulu Babi) | 89.7% | 84.8% | **91.8%** | 55.1% |
+| `2` | 🐚 **scallop** (Kerang) | 84.7% | 70.1% | **80.6%** | 51.6% |
+| `3` | ⭐ **starfish** (Bintang Laut) | 90.0% | 81.7% | **89.9%** | 56.3% |
+| `4` | 🐟 **fish** (Ikan) | 77.2% | 59.3% | **71.2%** | 47.7% |
+| `5` | 🪸 **corals** (Terumbu Karang) | 73.2% | 63.2% | **67.7%** | 48.6% |
+| `6` | 🤿 **diver** (Penyelam) | 89.0% | 90.5% | **94.0%** | 75.0% |
+| `7` | 🦑 **cuttlefish** (Sotong) | 95.0% | 91.2% | **94.3%** | 80.4% |
+| `8` | 🐢 **turtle** (Penyu) | 93.4% | 92.8% | **96.7%** | 83.0% |
+| `9` | 🪼 **jellyfish** (Ubur-Ubur) | 82.1% | 32.8% | **49.7%** | 36.9% |
+
+---
+
+## 9. Roadmap Langkah Selanjutnya
 1. **Evaluasi Cross-Domain di DUO:** Menguji checkpoint `best.pt` State 1 vs State 8 pada partition test/val DUO untuk mengonfirmasi keunggulan generalisasi.
 2. **Drafting Manuskrip JRTIP Springer Q1:** Menyusun bab metodologi, analisis kompleksitas komputasi hardware, tabel ablasi 8 baris, dan komparasi state-of-the-art.
