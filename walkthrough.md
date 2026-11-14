@@ -102,17 +102,22 @@ Seluruh state dilatih secara identik pada dataset **URPC 2020** (14.415 citra la
 
 ---
 
-## 7. Dataset Eksternal & Generalisasi Cross-Domain (RUOD)
+## 7. Dataset Eksternal & Generalisasi Cross-Domain: DUO Dataset
 
-Untuk membuktikan keandalan dan generalisasi metode usulan di luar URPC 2020, dataset sekunder **RUOD (Real-World Underwater Object Detection)** telah berhasil diunduh dan dipersiapkan secara penuh:
-* **Lokasi Dataset:** `dataset/ruod/`
-* **File Konfigurasi:** `dataset/ruod/data.yaml`
-* **Total Citra:** **13.112 citra** (Train: 9.179, Valid: 1.311, Test: 2.622)
-* **10 Kelas Bawah Air Nyata:** `holothurian`, `echinus`, `scallop`, `starfish`, `fish`, `corals`, `diver`, `cuttlefish`, `turtle`, `jellyfish`.
-* **Kesesuaian Taksonomi:** 4 kelas pertama identik 100% dengan URPC 2020, memudahkan evaluasi transfer domain langsung.
+Sebagai pembuktian keandalan dan generalisasi metode usulan di luar URPC 2020, dataset resmi **DUO (Detecting Underwater Objects)** Version 2 telah berhasil diunduh dan dipersiapkan secara penuh:
+* **Lokasi Dataset:** `dataset/duo/`
+* **File Konfigurasi:** `dataset/duo/data.yaml`
+* **Total Citra:** **7.782 citra** (Train: 5.448, Valid: 1.556, Test: 778)
+* **Kesesuaian Taksonomi Sempurna (100% Match):**
+  * Index 0: `echinus` (Bulu Babi)
+  * Index 1: `holothurian` (Teripang)
+  * Index 2: `scallop` (Kerang)
+  * Index 3: `starfish` (Bintang Laut)
+* **Keunggulan untuk Paper JRTIP Q1:**
+  Karena urutan indeks dan taksonomi 4 kelas identik 100% dengan URPC 2020, model yang telah dilatih pada URPC 2020 dapat langsung dievaluasi secara **Zero-Shot Domain Generalization** pada DUO, maupun dilatih secara mandiri (**In-Domain Benchmark**) untuk memperkuat klaim superioritas State 8.
 
 ---
 
 ## 8. Roadmap Langkah Selanjutnya
-1. **Benchmark Cross-Domain di RUOD:** Melatih dan membandingkan Baseline (State 1) vs Proposed Model (State 8) pada dataset RUOD untuk mengonfirmasi keunggulan generalisasi.
+1. **Evaluasi Cross-Domain di DUO:** Menguji checkpoint `best.pt` State 1 vs State 8 pada partition test/val DUO untuk mengonfirmasi keunggulan generalisasi.
 2. **Drafting Manuskrip JRTIP Springer Q1:** Menyusun bab metodologi, analisis kompleksitas komputasi hardware, tabel ablasi 8 baris, dan komparasi state-of-the-art.
