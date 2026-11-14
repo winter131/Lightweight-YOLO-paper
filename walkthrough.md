@@ -102,6 +102,17 @@ Seluruh state dilatih secara identik pada dataset **URPC 2020** (14.415 citra la
 
 ---
 
-## 7. Roadmap Langkah Selanjutnya
-1. **Evaluasi Generalisasi Cross-Domain (RUOD & UTDAC):** Menyiapkan data pipeline dan inferensi State 8 pada dataset RUOD dan UTDAC untuk membuktikan ketangguhan lintas perairan.
-2. **Drafting Manuskrip JRTIP:** Menyusun bab metodologi, analisis kompleksitas komputasi, dan komparasi state-of-the-art.
+## 7. Dataset Eksternal & Generalisasi Cross-Domain (RUOD)
+
+Untuk membuktikan keandalan dan generalisasi metode usulan di luar URPC 2020, dataset sekunder **RUOD (Real-World Underwater Object Detection)** telah berhasil diunduh dan dipersiapkan secara penuh:
+* **Lokasi Dataset:** `dataset/ruod/`
+* **File Konfigurasi:** `dataset/ruod/data.yaml`
+* **Total Citra:** **13.112 citra** (Train: 9.179, Valid: 1.311, Test: 2.622)
+* **10 Kelas Bawah Air Nyata:** `holothurian`, `echinus`, `scallop`, `starfish`, `fish`, `corals`, `diver`, `cuttlefish`, `turtle`, `jellyfish`.
+* **Kesesuaian Taksonomi:** 4 kelas pertama identik 100% dengan URPC 2020, memudahkan evaluasi transfer domain langsung.
+
+---
+
+## 8. Roadmap Langkah Selanjutnya
+1. **Benchmark Cross-Domain di RUOD:** Melatih dan membandingkan Baseline (State 1) vs Proposed Model (State 8) pada dataset RUOD untuk mengonfirmasi keunggulan generalisasi.
+2. **Drafting Manuskrip JRTIP Springer Q1:** Menyusun bab metodologi, analisis kompleksitas komputasi hardware, tabel ablasi 8 baris, dan komparasi state-of-the-art.
