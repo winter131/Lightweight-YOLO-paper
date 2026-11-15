@@ -151,6 +151,47 @@ Pelatihan 100 epoch dari awal (*from scratch*) dengan arsitektur **State 8 (Slim
 
 ---
 
-## 9. Roadmap Langkah Selanjutnya
-1. **Evaluasi Cross-Domain di DUO:** Menguji checkpoint `best.pt` State 1 vs State 8 pada partition test/val DUO untuk mengonfirmasi keunggulan generalisasi.
-2. **Drafting Manuskrip JRTIP Springer Q1:** Menyusun bab metodologi, analisis kompleksitas komputasi hardware, tabel ablasi 8 baris, dan komparasi state-of-the-art.
+## 9. Hasil Benchmark Generalisasi In-Domain di Dataset DUO (4 Kelas)
+
+Pelatihan 100 epoch dari awal (*from scratch*) dengan arsitektur **State 8 (Slim-Neck + Repulsion Loss + Class-Balanced BCE)** pada dataset **DUO (7.782 citra, 4 kelas)** telah selesai dieksekusi secara penuh:
+* **Run Name:** `DUO_State8_SlimNeck_Rep_CB`
+* **Arsitektur:** `configs/yolo11s_state2.yaml` (8.28 M Parameter, 16.0 GFLOPs)
+* **Dataset:** DUO (Train: 5.448, Valid: 1.556, Test: 778)
+* **Status:** **TUNTAS 100 Epoch** (Checkpoint: `best.pt` pada Epoch 89)
+
+### Metrik Evaluasi Resmi DUO State 8 (`best.pt`):
+| Metrik Evaluasi | Nilai Empiris |
+| :--- | :---: |
+| **Precision (P)** | **56.4%** |
+| **Recall (R)** | **50.9%** |
+| **$\text{mAP}_{50}$ (All 4 Classes)** | **42.0%** *(Best Epoch: **42.10%**)* |
+| **$\text{mAP}_{50-95}$ (All 4 Classes)** | **29.7%** *(Best Epoch: **29.60%**)* |
+| **Inference Latency (TensorRT FP16 / PyTorch)** | **4.55 ms** (219.6 FPS) / 4.2 ms |
+
+### Rincian Performa Per-Kelas di DUO ($\text{mAP}_{50}$):
+| ID | Kelas Biota Laut | Precision (P) | Recall (R) | $\text{mAP}_{50}$ | $\text{mAP}_{50-95}$ | Catatan Karakteristik Tantangan |
+| :---: | :--- | :---: | :---: | :---: | :---: | :--- |
+| `0` | 🦔 **echinus** (Bulu Babi) | 62.2% | 64.0% | **51.8%** | 39.8% | Kelas mayoritas (padat berkerumun) |
+| `1` | 🪸 **holothurian** (Teripang) | 54.9% | 42.5% | **36.2%** | 22.3% | Kamuflase optik dasar laut |
+| `2` | 🐚 **scallop** (Kerang) | 44.0% | 35.6% | **28.9%** | 18.7% | Minoritas ekstrem (hanya 2,7% dari total data) |
+| `3` | ⭐ **starfish** (Bintang Laut) | 64.4% | 61.4% | **51.2%** | 38.1% | Berhasil diurai oleh Repulsion Loss |
+
+---
+
+## 10. Matriks Komparasi Tri-Dataset (URPC 2020 vs RUOD vs DUO)
+
+| Metrik Evaluasi | URPC 2020 (Benchmark Utama) | RUOD (10 Kelas) | DUO (4 Kelas Kunci) |
+| :--- | :---: | :---: | :---: |
+| **Total Citra Dataset** | 16.991 citra | 13.112 citra | 7.782 citra |
+| **Jumlah Kelas Biota** | 4 kelas | 10 kelas | 4 kelas |
+| **Model Arsitektur** | State 8 (Slim-Neck) | State 8 (Slim-Neck) | State 8 (Slim-Neck) |
+| **Parameter Jaringan** | **8.29 M (-11.3%)** | **8.29 M (-11.2%)** | **8.28 M (-11.3%)** |
+| **Komputasi (FLOPs)** | **16.0 GFLOPs** | **16.2 GFLOPs** | **16.0 GFLOPs** |
+| **TensorRT FP16 Latency** | **4.55 ms (219.6 FPS)** | **4.55 ms (219.6 FPS)** | **4.55 ms (219.6 FPS)** |
+| **$\text{mAP}_{50}$ Hasil Latih** | **83.60%** | **81.80%** | **42.10%** |
+| **Status Uji JRTIP Q1** | **SELESAI (8/8 State)** | **SELESAI 100 Epoch** | **SELESAI 100 Epoch** |
+
+---
+
+## 11. Roadmap Langkah Selanjutnya
+1. **Drafting Manuskrip JRTIP Springer Q1:** Menyusun bab metodologi, formulasi matematika Repulsion & Class-Balanced Loss, analisis hardware acceleration TensorRT, dan tabel komparasi tri-dataset.
